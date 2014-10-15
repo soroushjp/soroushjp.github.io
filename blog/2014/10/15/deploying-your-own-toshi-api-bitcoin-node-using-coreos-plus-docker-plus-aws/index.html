@@ -93,9 +93,12 @@
   </header>
 
 
-<div class="entry-content"><p>In September, Coinbase <a href="http://blog.coinbase.com/post/97671295752/introducing-toshi-an-open-source-bitcoin-node-for">open-sourced Toshi</a>, their in-house Bitcoin full node for querying the Bitcoin blockchain and broadcasting transactions, powered by Ruby and PostgreSQL. Compared to Bitcoin Core, it allows much richer SQL  querying at the expense of a much larger data store (220GB vs 25GB as of September). <!--more-->You can read more about what Toshi can do over in their official <a href="https://github.com/coinbase/toshi/">README</a>.</p>
+<div class="entry-content"><p>In September, Coinbase <a href="http://blog.coinbase.com/post/97671295752/introducing-toshi-an-open-source-bitcoin-node-for">open-sourced Toshi</a>, their in-house Bitcoin full node for querying the Bitcoin blockchain and broadcasting transactions, powered by Ruby and PostgreSQL. Compared to Bitcoin Core, it allows much richer SQL  querying at the expense of a much larger data store (220GB vs 25GB as of September). You can read more about what Toshi can do over in their official <a href="https://github.com/coinbase/toshi/">README</a>.</p>
 
 <p>In this blog post, I&rsquo;d like to guide you through the process of deploying Toshi using Docker on CoreOS Linux, hosted on Amazon AWS.</p>
+
+<!--more-->
+
 
 <p><a href="http://www.docker.com">Docker</a> is a way to get all the custom configurations required for an application in an isolated container without the overhead of a full virtual machine. The Toshi team has provided us with a Docker container so this is a fantastic  way to get all our required configurations to run Toshi in one go.</p>
 
