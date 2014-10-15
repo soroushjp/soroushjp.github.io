@@ -127,43 +127,61 @@
 
 <p>You will need your .pem file from the key pair you launched your instance with to SSH into the launched instance. CoreOS requires you to SSH as the &lsquo;core&rsquo; user, like so from a terminal:</p>
 
-<pre><code>ssh -i /PATH/TO/YOUR/KEY.pem core@YOUR_EC2_PUBLIC_ELASTIC_IP
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ssh -i /PATH/TO/YOUR/KEY.pem core@YOUR_EC2_PUBLIC_ELASTIC_IP
+</span></code></pre></td></tr></table></div></figure>
+
 
 <h2>Setting up Toshi, Redis, PostgreSQL</h2>
 
 <p>First simply, clone the Toshi repository:</p>
 
-<pre><code>git clone https://github.com/coinbase/toshi.git
-cd toshi
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone https://github.com/coinbase/toshi.git
+</span><span class='line'><span class="nb">cd </span>toshi
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Now we&rsquo;ll build the Docker container for Toshi. Docker looks at the Dockerfile in the folder to figure out how to setup the right configuration for our Toshi container:</p>
 
-<pre><code>docker build -t=coinbase/node .
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>docker build -t<span class="o">=</span>coinbase/node .
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Don&rsquo;t forget the &ldquo;.&rdquo; at the end of the line.</p>
 
 <p>Next we&rsquo;ll setup the Redis and PostgreSQL containers that Toshi requires to store blockchain information:</p>
 
-<pre><code>docker run -d --name toshi_db postgres
-docker run -d --name toshi_redis redis
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>docker run -d --name toshi_db postgres
+</span><span class='line'>docker run -d --name toshi_redis redis
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
 
 <p>Here, we&rsquo;re using the official Redis and PostgreSQL Docker containers (&lsquo;redis&rsquo; and &lsquo;postgres&rsquo;, respectively) with default configurations, since these work perfectly well for our purposes. We&rsquo;ve named our two containers &lsquo;toshi_db&rsquo; and &lsquo;toshi_redis&rsquo; to make them easy to reference.</p>
 
 <p>Type in <code>docker ps</code> to see your two containers running. You should see something like:</p>
 
-<pre><code>CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS              PORTS               NAMES
-ebd13a7a2085        redis:latest        "/entrypoint.sh redi   1 seconds ago       Up 1 seconds        6379/tcp            toshi_redis         
-805b03a9e3f0        postgres:latest     "/docker-entrypoint.   11 seconds ago      Up 11 seconds       5432/tcp            toshi_db
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS              PORTS               NAMES
+</span><span class='line'>ebd13a7a2085        redis:latest        <span class="s2">&quot;/entrypoint.sh redi   1 seconds ago       Up 1 seconds        6379/tcp            toshi_redis         </span>
+</span><span class='line'><span class="s2">805b03a9e3f0        postgres:latest     &quot;</span>/docker-entrypoint.   <span class="m">11</span> seconds ago      Up <span class="m">11</span> seconds       5432/tcp            toshi_db
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Now, we&rsquo;ll launch our Toshi container:</p>
 
-<pre><code>docker run -p 5000:5000 --name toshi -t -i --link toshi_db:db --link toshi_redis:redis coinbase/toshi
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>docker run -p 5000:5000 --name toshi -t -i --link toshi_db:db --link toshi_redis:redis coinbase/node
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>We&rsquo;re doing a few important things here while launching our Toshi container:</p>
 
@@ -176,33 +194,44 @@ ebd13a7a2085        redis:latest        "/entrypoint.sh redi   1 seconds ago    
 
 <p>After running that command, you should be sitting in the root prompt for your Toshi container, something like this:</p>
 
-<pre><code>root@f87ea74ff3b2:/toshi#
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>root@f87ea74ff3b2:/toshi#
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Where f87ea74ff3b2 will be your Toshi container ID. Now, we set environment variables so Toshi knows where to find our Redis and PostgreSQL containers, using the environment variables Docker provides for linked containers:</p>
 
-<pre><code>export DATABASE_URL=postgres://postgres:@$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT
-export REDIS_URL=redis://$REDIS_PORT_6379_TCP_ADDR:$REDIS_PORT_6379_TCP_PORT
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">DATABASE_URL</span><span class="o">=</span>postgres://postgres:@<span class="nv">$DB_PORT_5432_TCP_ADDR</span>:<span class="nv">$DB_PORT_5432_TCP_PORT</span>
+</span><span class='line'><span class="nb">export </span><span class="nv">REDIS_URL</span><span class="o">=</span>redis://<span class="nv">$REDIS_PORT_6379_TCP_ADDR</span>:<span class="nv">$REDIS_PORT_6379_TCP_PORT</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Please note that we are using the default login credentials postgres:&lt;no password&gt; for our PostgreSQL container. In a production environment, you would obviously set actual login credentials, but this is fine for our purposes of just getting Toshi running.</p>
 
 <p>We need to set the environment that Toshi will work in. For our purposes now, let&rsquo;s use the Testnet (not the actual Bitcoin blockchain):</p>
 
-<pre><code>export TOSHI_ENV=test
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">TOSHI_ENV</span><span class="o">=</span><span class="nb">test</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>To download and work with actual Bitcoin transactions, you want to set &lsquo;test&rsquo; above to &lsquo;production&rsquo;.</p>
 
 <p>We run database migrations for Toshi:</p>
 
-<pre><code>bundle exec rake db:migrate
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>bundle <span class="nb">exec </span>rake db:migrate
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Finally, we are ready to launch Toshi! We launch Toshi using foreman:</p>
 
-<pre><code>foreman start
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>foreman start
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Voila! You should see a whole stream of output from Toshi, hopefully with no errors. You&rsquo;ll see it grabbing blocks and transactions from the network. This will take a very, very long time (depending on AWS&rsquo;s network bandwidth). I have not yet timed how long this may take, but suffice to say it will be a long time. I will post more numbers about this as I continue to play around with Toshi.</p>
 
