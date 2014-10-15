@@ -1,6 +1,6 @@
 body > nav {
   position: relative;
-  background-color: $nav-bg;
+  background: $nav-bg;
   
   padding-top: .35em;
   padding-bottom: .35em;
@@ -14,10 +14,10 @@ body > nav {
       line-height: 0.8em;
       width: 95%;
       background: $nav-bg;
-      border: 1px solid $nav-bg;
+      border: 1px solid $secondary-theme-color;
       &:focus {
         background: $nav-bg;
-        border: 1px solid $nav-bg;
+        border: 1px solid $secondary-theme-color;
       }
     }
   }
@@ -90,7 +90,7 @@ body > nav {
 }
 .no-placeholder {
   body > nav .search {
-    background: lighten($nav-bg, 15) image-url('search.png') .3em .25em no-repeat;
+    background: lighten($secondary-theme-color, 15) image-url('search.png') .3em .25em no-repeat;
     text-indent: 1.3em;
   }
 }
