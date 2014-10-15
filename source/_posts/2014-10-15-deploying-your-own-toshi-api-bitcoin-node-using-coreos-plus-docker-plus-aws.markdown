@@ -40,39 +40,51 @@ First, we'll launch a new instance on [Amazon EC2](http://aws.amazon.com/ec2/). 
 
 You will need your .pem file from the key pair you launched your instance with to SSH into the launched instance. CoreOS requires you to SSH as the 'core' user, like so from a terminal:
 
+```bash
 	ssh -i /PATH/TO/YOUR/KEY.pem core@YOUR_EC2_PUBLIC_ELASTIC_IP
-	
+```
+
 Setting up Toshi, Redis, PostgreSQL
 ------------------------------------------------
 
 First simply, clone the Toshi repository:
-	
+
+```bash
 	git clone https://github.com/coinbase/toshi.git
 	cd toshi
+```
 
 Now we'll build the Docker container for Toshi. Docker looks at the Dockerfile in the folder to figure out how to setup the right configuration for our Toshi container:
 
+```bash
 	docker build -t=coinbase/node .
-	
+```
+
 Don't forget the "." at the end of the line.
 
 Next we'll setup the Redis and PostgreSQL containers that Toshi requires to store blockchain information:
 
+```bash
 	docker run -d --name toshi_db postgres
 	docker run -d --name toshi_redis redis
-	
+```	
+
 Here, we're using the official Redis and PostgreSQL Docker containers ('redis' and 'postgres', respectively) with default configurations, since these work perfectly well for our purposes. We've named our two containers 'toshi_db' and 'toshi_redis' to make them easy to reference.
 	
 Type in `docker ps` to see your two containers running. You should see something like:
 
+```bash
 	CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS              PORTS               NAMES
 	ebd13a7a2085        redis:latest        "/entrypoint.sh redi   1 seconds ago       Up 1 seconds        6379/tcp            toshi_redis         
 	805b03a9e3f0        postgres:latest     "/docker-entrypoint.   11 seconds ago      Up 11 seconds       5432/tcp            toshi_db
-	
+```
+
 Now, we'll launch our Toshi container:
 
-	docker run -p 5000:5000 --name toshi -t -i --link toshi_db:db --link toshi_redis:redis coinbase/toshi
-	
+```bash
+	docker run -p 5000:5000 --name toshi -t -i --link toshi_db:db --link toshi_redis:redis coinbase/node
+```
+
 We're doing a few important things here while launching our Toshi container:
 
 - Naming our container 'toshi' for easy reference
@@ -81,28 +93,38 @@ We're doing a few important things here while launching our Toshi container:
 
 After running that command, you should be sitting in the root prompt for your Toshi container, something like this:
 
+```bash
 	root@f87ea74ff3b2:/toshi#
-	
+```
+
 Where f87ea74ff3b2 will be your Toshi container ID. Now, we set environment variables so Toshi knows where to find our Redis and PostgreSQL containers, using the environment variables Docker provides for linked containers:
 
+```bash
 	export DATABASE_URL=postgres://postgres:@$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT
 	export REDIS_URL=redis://$REDIS_PORT_6379_TCP_ADDR:$REDIS_PORT_6379_TCP_PORT
-	
+```
+
 Please note that we are using the default login credentials postgres:&lt;no password&gt; for our PostgreSQL container. In a production environment, you would obviously set actual login credentials, but this is fine for our purposes of just getting Toshi running.
 
 We need to set the environment that Toshi will work in. For our purposes now, let's use the Testnet (not the actual Bitcoin blockchain):
 
+```bash
 	export TOSHI_ENV=test
-	
+```
+
 To download and work with actual Bitcoin transactions, you want to set 'test' above to 'production'.
 
 We run database migrations for Toshi:
 
+```bash
 	bundle exec rake db:migrate
-	
+```
+
 Finally, we are ready to launch Toshi! We launch Toshi using foreman:
 
+```bash
 	foreman start
+```
 	
 Voila! You should see a whole stream of output from Toshi, hopefully with no errors. You'll see it grabbing blocks and transactions from the network. This will take a very, very long time (depending on AWS's network bandwidth). I have not yet timed how long this may take, but suffice to say it will be a long time. I will post more numbers about this as I continue to play around with Toshi.
 
