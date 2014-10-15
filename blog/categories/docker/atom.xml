@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Docker | My Octopress Blog]]></title>
+  <title><![CDATA[Category: Docker | Soroush Pour's Blog]]></title>
   <link href="http://soroushjp.github.io/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://soroushjp.github.io/"/>
-  <updated>2014-10-15T18:13:01-04:00</updated>
+  <updated>2014-10-15T18:13:55-04:00</updated>
   <id>http://soroushjp.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Soroush Pour]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
