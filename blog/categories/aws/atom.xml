@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Aws | Soroush Pour's Blog]]></title>
+  <title><![CDATA[Category: Aws | My Octopress Blog]]></title>
   <link href="http://soroushjp.github.io/blog/categories/aws/atom.xml" rel="self"/>
   <link href="http://soroushjp.github.io/"/>
-  <updated>2014-10-15T18:13:55-04:00</updated>
+  <updated>2014-10-15T18:16:46-04:00</updated>
   <id>http://soroushjp.github.io/</id>
   <author>
-    <name><![CDATA[Soroush Pour]]></name>
+    <name><![CDATA[Your Name]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -22,7 +22,7 @@
 
 <p>In this blog post, I&rsquo;d like to guide you through the process of deploying Toshi using Docker on CoreOS Linux, hosted on Amazon AWS.</p>
 
-<p><a href="http://www.docker.com">Docker</a> is a way to get all the custom configurations required for a particular application in an isolated container without the overhead of a full virtual machine. The Toshi team has provided us with a Docker container so this is a fantastic  way to get all our required configurations to run Toshi in one go.</p>
+<p><a href="http://www.docker.com">Docker</a> is a way to get all the custom configurations required for an application in an isolated container without the overhead of a full virtual machine. The Toshi team has provided us with a Docker container so this is a fantastic  way to get all our required configurations to run Toshi in one go.</p>
 
 <p>We&rsquo;ll be using <a href="http://www.coreos.com">CoreOS</a>, which is a very lightweight Linux distribution that requires all of its applications to be deployed using Docker. Since we&rsquo;ll be using Docker and git, and don&rsquo;t need much else bogging down our EC2 machine, this is perfect for our purposes.</p>
 
