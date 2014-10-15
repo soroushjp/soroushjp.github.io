@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
+  <title><![CDATA[Soroush Pour's Blog]]></title>
   <link href="http://soroushjp.github.io/atom.xml" rel="self"/>
   <link href="http://soroushjp.github.io/"/>
-  <updated>2014-10-15T18:16:46-04:00</updated>
+  <updated>2014-10-15T18:40:33-04:00</updated>
   <id>http://soroushjp.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Soroush Pour]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -18,7 +18,7 @@
     <link href="http://soroushjp.github.io/blog/2014/10/15/deploying-your-own-toshi-api-bitcoin-node-using-coreos-plus-docker-plus-aws/"/>
     <updated>2014-10-15T15:37:20-04:00</updated>
     <id>http://soroushjp.github.io/blog/2014/10/15/deploying-your-own-toshi-api-bitcoin-node-using-coreos-plus-docker-plus-aws</id>
-    <content type="html"><![CDATA[<p>In September, Coinbase <a href="http://blog.coinbase.com/post/97671295752/introducing-toshi-an-open-source-bitcoin-node-for">open-sourced Toshi</a>, their in-house Bitcoin full node for querying the Bitcoin blockchain and broadcasting transactions, powered by Ruby and PostgreSQL. Compared to Bitcoin Core, it allows much richer SQL  querying at the expense of a much larger data store (220GB vs 25GB as of September). <!--more-->You can read more about what Toshi can do over in their full <a href="https://github.com/coinbase/toshi/">README</a>.</p>
+    <content type="html"><![CDATA[<p>In September, Coinbase <a href="http://blog.coinbase.com/post/97671295752/introducing-toshi-an-open-source-bitcoin-node-for">open-sourced Toshi</a>, their in-house Bitcoin full node for querying the Bitcoin blockchain and broadcasting transactions, powered by Ruby and PostgreSQL. Compared to Bitcoin Core, it allows much richer SQL  querying at the expense of a much larger data store (220GB vs 25GB as of September). <!--more-->You can read more about what Toshi can do over in their official <a href="https://github.com/coinbase/toshi/">README</a>.</p>
 
 <p>In this blog post, I&rsquo;d like to guide you through the process of deploying Toshi using Docker on CoreOS Linux, hosted on Amazon AWS.</p>
 
@@ -30,8 +30,8 @@
 
 <ol>
 <li>The Toshi container containing the Toshi API</li>
-<li>A Redis container</li>
-<li>A PostgreSQL database container</li>
+<li>A <a href="http://www.redis.io">Redis</a> key-value data store container</li>
+<li>A <a href="http://www.postgresql.org">PostgreSQL</a> database container</li>
 </ol>
 
 
@@ -39,10 +39,10 @@
 
 <h2>Setting up our AWS instance</h2>
 
-<p>First, we&rsquo;ll launch a new instance on <a href="http://aws.amazon.com/ec2/">Amazon EC2</a>. I will be assuming you know how to do this, but here is the configuration you will need:</p>
+<p>First, we&rsquo;ll launch a new instance on <a href="http://aws.amazon.com/ec2/">Amazon EC2</a>. I will be assuming you know how to do this, but here is the EC2 configuration you will want:</p>
 
 <ul>
-<li>CoreOS beta 310.1.0 as your AMI: <a href="http://aws.amazon.com/marketplace/pp/B00KBCWCRG">http://aws.amazon.com/marketplace/pp/B00KBCWCRG</a></li>
+<li><a href="http://aws.amazon.com/marketplace/pp/B00KBCWCRG">CoreOS beta 310.1.0</a> as your AMI</li>
 <li>m3.medium</li>
 <li>400GB General SSD Storage on EBS</li>
 <li>For the security group: set ports 22, 5000 TCP open inbound and all traffic open outbound</li>
@@ -50,7 +50,7 @@
 </ul>
 
 
-<p>You will need your .pem file from the key pair you launched your instance with to SSH into the launched instance. CoreOS requires you to SSH as the &lsquo;core&rsquo; user, like so from terminal:</p>
+<p>You will need your .pem file from the key pair you launched your instance with to SSH into the launched instance. CoreOS requires you to SSH as the &lsquo;core&rsquo; user, like so from a terminal:</p>
 
 <pre><code>ssh -i /PATH/TO/YOUR/KEY.pem core@YOUR_EC2_PUBLIC_ELASTIC_IP
 </code></pre>
@@ -68,7 +68,7 @@ cd toshi
 <pre><code>docker build -t=coinbase/node .
 </code></pre>
 
-<p>Don&rsquo;t forget the &ldquo;.&rdquo; at the end of that line.</p>
+<p>Don&rsquo;t forget the &ldquo;.&rdquo; at the end of the line.</p>
 
 <p>Next we&rsquo;ll setup the Redis and PostgreSQL containers that Toshi requires to store blockchain information:</p>
 
@@ -76,7 +76,7 @@ cd toshi
 docker run -d --name toshi_redis redis
 </code></pre>
 
-<p>Here, we&rsquo;re using the official Redis and PostgreSQL Docker containers (postgres &amp; redis) with default configurations, since these work perfectly well for our purposes. We&rsquo;ve named our two containers &lsquo;toshi_db&rsquo; and &lsquo;toshi_redis&rsquo; to make them easy to reference.</p>
+<p>Here, we&rsquo;re using the official Redis and PostgreSQL Docker containers (&lsquo;redis&rsquo; and &lsquo;postgres&rsquo;, respectively) with default configurations, since these work perfectly well for our purposes. We&rsquo;ve named our two containers &lsquo;toshi_db&rsquo; and &lsquo;toshi_redis&rsquo; to make them easy to reference.</p>
 
 <p>Type in <code>docker ps</code> to see your two containers running. You should see something like:</p>
 
@@ -95,7 +95,7 @@ ebd13a7a2085        redis:latest        "/entrypoint.sh redi   1 seconds ago    
 <ul>
 <li>Naming our container &lsquo;toshi&rsquo; for easy reference</li>
 <li>Mapping port 5000 on the container to port 5000 on our actual EC2 instance so we can access Toshi at this port once we have it up and running.</li>
-<li>Linking our toshi_redis and toshi_db containers to our toshi container. Docker containers are usually live in complete isolation, so we need to do this so they can communicate and exchange data with each other. Docker will give our Toshi container environment variables which tell it what IP and port to connect to our Redis and PostgreSQL at, which we&rsquo;ll use shortly.</li>
+<li>Linking our toshi_redis and toshi_db containers to our toshi container. Docker containers are usually live in complete isolation, so we need to do this so they can communicate and exchange data with each other. Docker will give our Toshi container environment variables which tell it how to connect to our Redis and PostgreSQL containers, and we&rsquo;ll use those shortly.</li>
 </ul>
 
 
@@ -104,13 +104,13 @@ ebd13a7a2085        redis:latest        "/entrypoint.sh redi   1 seconds ago    
 <pre><code>root@f87ea74ff3b2:/toshi#
 </code></pre>
 
-<p>Where f87ea74ff3b2 will be your Toshi container ID. Now, we set environment variables so Toshi knows where to find our Redis and PostgreSQL databases, using the environment variables Docker provided us during linking to know where these are:</p>
+<p>Where f87ea74ff3b2 will be your Toshi container ID. Now, we set environment variables so Toshi knows where to find our Redis and PostgreSQL containers, using the environment variables Docker provides for linked containers:</p>
 
 <pre><code>export DATABASE_URL=postgres://postgres:@$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT
 export REDIS_URL=redis://$REDIS_PORT_6379_TCP_ADDR:$REDIS_PORT_6379_TCP_PORT
 </code></pre>
 
-<p>Please note that we are using the default login credentials postgres:\<no password\> for our PostgreSQL container. In a production environment, you would obviously set actual login credentials, but this is fine for our purposes of just getting Toshi running.</p>
+<p>Please note that we are using the default login credentials postgres:&lt;no password&gt; for our PostgreSQL container. In a production environment, you would obviously set actual login credentials, but this is fine for our purposes of just getting Toshi running.</p>
 
 <p>We need to set the environment that Toshi will work in. For our purposes now, let&rsquo;s use the Testnet (not the actual Bitcoin blockchain):</p>
 
@@ -129,18 +129,18 @@ export REDIS_URL=redis://$REDIS_PORT_6379_TCP_ADDR:$REDIS_PORT_6379_TCP_PORT
 <pre><code>foreman start
 </code></pre>
 
-<p>Voila! You should see a whole stream of output from Toshi, hopefully with no errors. You&rsquo;ll see it grabbing blocks and transactions from the network. This will take a very, very long time (depending on your network bandwidth). I have not yet timed how long this may take, but suffice to say it will be a long time. I will post more numbers about this as I continue to play around with Toshi.</p>
+<p>Voila! You should see a whole stream of output from Toshi, hopefully with no errors. You&rsquo;ll see it grabbing blocks and transactions from the network. This will take a very, very long time (depending on AWS&rsquo;s network bandwidth). I have not yet timed how long this may take, but suffice to say it will be a long time. I will post more numbers about this as I continue to play around with Toshi.</p>
 
-<p>To see Toshi&rsquo;s interface which shows blocks and transactions as they are downloaded, go to <a href="http://YOUR_EC2_ELASTIC_IP:5000">http://YOUR_EC2_ELASTIC_IP:5000</a> in your browser, where you should see something like <a href="https://testnet3.toshi.io/">this</a>.</p>
+<p>To see Toshi&rsquo;s web interface, which shows blocks and transactions as they are downloaded, go to <a href="http://YOUR_EC2_ELASTIC_IP:5000">http://YOUR_EC2_ELASTIC_IP:5000</a> in your browser, where you should see something like <a href="https://testnet3.toshi.io/">this</a>.</p>
 
-<p>You can also play around with the full range of API calls that Toshi supports, like going to <a href="http://YOUR_EC2_ELASTIC_IP:5000/api/v0/blocks/">http://YOUR_EC2_ELASTIC_IP:5000/api/v0/blocks/</a><block_hash> to get block information directly from the blockchain. Check out everything you can do with Toshi from the <a href="https://github.com/coinbase/toshi">README</a>.</p>
+<p>You can also play around with the full range of API calls that Toshi supports, like going to <a href="http://YOUR_EC2_ELASTIC_IP:5000/api/v0/blocks/">http://YOUR_EC2_ELASTIC_IP:5000/api/v0/blocks/</a> &lt; block_hash &gt; to get block information directly from the blockchain. Check out everything you can do with Toshi at the official <a href="https://github.com/coinbase/toshi">README</a>.</p>
 
 <p>Congratulations! You&rsquo;ve just deployed your own Toshi full Bitcoin node!  In future blog posts, I&rsquo;d like to help you get more out of your Toshi node, including:</p>
 
 <ul>
 <li>How to set data-only containers for PostgreSQL and Redis, so that we can make sure the downloaded blockchain remains persistent.</li>
-<li>Play around with Toshi API to find out some cool information from the Bitcoin blockchain.</li>
-<li>Querying our PostgreSQL with raw SQL to find some <em>really</em> cool information from the Bitcoin blockchain.</li>
+<li>Play around with the Toshi API to find out some cool information from the Bitcoin blockchain.</li>
+<li>Querying our PostgreSQL DB with raw SQL to find some <em>really</em> cool information from the Bitcoin blockchain.</li>
 </ul>
 
 
